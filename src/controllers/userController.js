@@ -29,4 +29,25 @@ const getUserById = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getUserById };
+const addUser = (req, res) => {
+  const { firstname, lastname, email, city, language } = req.body;
+
+  database
+    .query(
+      "INSERT INTO users(firstname, lastname, email, city, language) VALUES (?, ?, ?, ?, ?)",
+      [firstname, lastname, email, city, language]
+    )
+    .then(([result]) => {
+      res.status(201).send({ id: result.insertId });
+    })
+    .catch((err) => {
+      console.error(err);
+      if (err.code === "ER_DUP_ENTRY") {
+        res.status(409).send({ message: "Email already exists." });
+      } else {
+        res.sendStatus(500);
+      }
+    });
+};
+
+module.exports = { getUsers, getUserById, addUser };
